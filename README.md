@@ -1,14 +1,14 @@
 # Color Palette API
 
-REST API built with Node.js, Express and TypeScript that extracts dominant color palettes from uploaded images and computes color harmonies from any hex color.
+API REST construite avec Node.js, Express et TypeScript qui extrait les palettes de couleurs dominantes d'images uploadées et calcule des harmonies chromatiques à partir de n'importe quelle couleur hexadécimale.
 
 ## Stack
 
-- **Runtime**: Node.js + TypeScript
-- **Framework**: Express
-- **Image processing**: sharp
-- **Color extraction**: node-vibrant
-- **File upload**: multer
+- **Runtime** : Node.js + TypeScript
+- **Framework** : Express
+- **Traitement d'image** : sharp
+- **Extraction de couleurs** : node-vibrant
+- **Upload de fichiers** : multer
 
 ## Installation
 
@@ -18,18 +18,25 @@ cd color-palette-api
 npm install
 ```
 
-## Usage
+## Utilisation
 
 ```bash
-# Development (hot reload)
+# Développement (rechargement automatique)
 npm run dev
 
-# Production build
+# Build de production
 npm run build
 npm start
 ```
 
-The server starts on `http://localhost:3000` by default. Override with the `PORT` environment variable.
+Le serveur démarre sur `http://localhost:3000` par défaut. Modifiable via la variable d'environnement `PORT`.
+
+### Variables d'environnement
+
+| Variable      | Défaut | Description                                      |
+|---------------|--------|--------------------------------------------------|
+| `PORT`        | `3000` | Port d'écoute du serveur                         |
+| `CORS_ORIGIN` | `*`    | Origine(s) autorisées pour les requêtes CORS     |
 
 ---
 
@@ -37,9 +44,9 @@ The server starts on `http://localhost:3000` by default. Override with the `PORT
 
 ### `GET /health`
 
-Health check.
+Vérification de l'état du serveur.
 
-**Response**
+**Réponse**
 ```json
 {
   "status": "ok",
@@ -51,20 +58,20 @@ Health check.
 
 ### `POST /api/palette`
 
-Upload an image and extract its dominant color palette.
+Uploade une image et extrait sa palette de couleurs dominantes.
 
-**Request**
-- Content-Type: `multipart/form-data`
-- Field: `image` — image file (JPEG, PNG, WebP, GIF, TIFF)
-- Max size: **5 MB**
+**Requête**
+- Content-Type : `multipart/form-data`
+- Champ : `image` — fichier image (JPEG, PNG, WebP, GIF, TIFF)
+- Taille max : **5 Mo**
 
-**Example (curl)**
+**Exemple (curl)**
 ```bash
 curl -X POST http://localhost:3000/api/palette \
-  -F "image=@/path/to/photo.jpg"
+  -F "image=@/chemin/vers/photo.jpg"
 ```
 
-**Response**
+**Réponse**
 ```json
 {
   "dominant": {
@@ -102,19 +109,19 @@ curl -X POST http://localhost:3000/api/palette \
 
 ### `GET /api/harmonies/:hex`
 
-Compute color harmony schemes from a base hex color.
+Calcule les harmonies chromatiques à partir d'une couleur hexadécimale de base.
 
-**Parameters**
-| Name | Type   | Description                              |
-|------|--------|------------------------------------------|
-| hex  | string | 6-character hex color code (without `#`) |
+**Paramètres**
+| Nom | Type   | Description                                   |
+|-----|--------|-----------------------------------------------|
+| hex | string | Code couleur hexadécimal de 6 caractères (sans `#`) |
 
-**Example**
+**Exemple**
 ```bash
 curl http://localhost:3000/api/harmonies/3a7bd5
 ```
 
-**Response**
+**Réponse**
 ```json
 {
   "base": {
@@ -147,19 +154,19 @@ curl http://localhost:3000/api/harmonies/3a7bd5
 
 ---
 
-## Project Structure
+## Structure du projet
 
 ```
 src/
-├── routes/          # Express route definitions
-├── controllers/     # Request handlers
-├── services/        # Color extraction logic (sharp + node-vibrant)
-├── middlewares/     # Multer upload configuration
-├── utils/           # Color math (hex/rgb/hsl conversions, harmony algorithms)
-└── types/           # TypeScript interfaces
-uploads/             # Temporary upload directory (auto-cleaned after processing)
+├── routes/          # Définition des routes Express
+├── controllers/     # Gestionnaires de requêtes
+├── services/        # Logique d'extraction de couleurs (sharp + node-vibrant)
+├── middlewares/     # Configuration de l'upload Multer
+├── utils/           # Calculs couleur (conversions hex/rgb/hsl, algorithmes d'harmonie)
+└── types/           # Interfaces TypeScript
+uploads/             # Répertoire temporaire d'upload (nettoyé automatiquement après traitement)
 ```
 
-## License
+## Licence
 
 ISC

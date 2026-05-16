@@ -1,4 +1,4 @@
-import { HarmonyColor } from '../types';
+import { HarmonyColor, HarmonyResult } from '../types';
 
 export function hexToRgb(hex: string): { r: number; g: number; b: number } {
   const clean = hex.replace('#', '');
@@ -91,14 +91,7 @@ function buildHarmonyColor(h: number, s: number, l: number): HarmonyColor {
   };
 }
 
-export function computeHarmonies(hex: string): {
-  base: HarmonyColor;
-  complementary: HarmonyColor[];
-  triadic: HarmonyColor[];
-  analogous: HarmonyColor[];
-  splitComplementary: HarmonyColor[];
-  tetradic: HarmonyColor[];
-} {
+export function computeHarmonies(hex: string): HarmonyResult {
   const rgb = hexToRgb(hex);
   const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
   const { h, s, l } = hsl;

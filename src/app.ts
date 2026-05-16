@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import paletteRoutes from './routes/palette.routes';
@@ -12,7 +13,7 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-app.use(cors());
+app.use(cors({ origin: process.env.CORS_ORIGIN ?? '*' }));
 app.use(express.json());
 
 app.get('/health', (_req, res) => {
@@ -22,6 +23,10 @@ app.get('/health', (_req, res) => {
 app.use('/api', paletteRoutes);
 
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  if (err instanceof multer.MulterError) {
+    res.status(400).json({ error: err.message });
+    return;
+  }
   res.status(500).json({ error: err.message });
 });
 

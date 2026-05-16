@@ -18,7 +18,7 @@ export async function postPalette(req: Request, res: Response): Promise<void> {
 }
 
 export function getHarmonies(req: Request, res: Response): void {
-  const { hex } = req.params;
+  const hex = String(req.params['hex']);
   const hexPattern = /^[0-9A-Fa-f]{6}$/;
 
   if (!hexPattern.test(hex)) {
