@@ -2,7 +2,7 @@ import { Vibrant } from 'node-vibrant/node';
 import sharp from 'sharp';
 import fs from 'fs/promises';
 import { ColorSwatch, PaletteResult } from '../types';
-import { rgbToHsl } from '../utils/colorUtils';
+import { getColorName } from '../utils/colorUtils';
 
 export async function extractPalette(filePath: string): Promise<PaletteResult> {
   try {
@@ -11,14 +11,15 @@ export async function extractPalette(filePath: string): Promise<PaletteResult> {
 
     const swatches: ColorSwatch[] = Object.entries(palette)
       .filter(([, swatch]) => swatch !== null)
-      .map(([name, swatch]) => {
+      .map(([, swatch]) => {
         const [r, g, b] = swatch!.rgb;
+        const rgb = { r: Math.round(r), g: Math.round(g), b: Math.round(b) };
         return {
           hex: swatch!.hex,
-          rgb: { r: Math.round(r), g: Math.round(g), b: Math.round(b) },
-          hsl: rgbToHsl(Math.round(r), Math.round(g), Math.round(b)),
+          rgb,
+          hsl: { h: Math.round(swatch!.hsl[0] * 360), s: Math.round(swatch!.hsl[1] * 100), l: Math.round(swatch!.hsl[2] * 100) },
           population: swatch!.population,
-          name,
+          name: getColorName(swatch!.hex),
         };
       })
       .sort((a, b) => b.population - a.population);

@@ -1,6 +1,6 @@
 # Color Palette API
 
-API REST construite avec Node.js, Express et TypeScript qui extrait les palettes de couleurs dominantes d'images uploadées et calcule des harmonies chromatiques à partir de n'importe quelle couleur hexadécimale.
+API REST construite avec Node.js, Express et TypeScript qui extrait les palettes de couleurs dominantes d'images uploadées, identifie chaque couleur par son nom (via une base de 4 928 couleurs nommées) et calcule des harmonies chromatiques à partir de n'importe quelle couleur hexadécimale.
 
 ## Stack
 
@@ -8,12 +8,14 @@ API REST construite avec Node.js, Express et TypeScript qui extrait les palettes
 - **Framework** : Express
 - **Traitement d'image** : sharp
 - **Extraction de couleurs** : node-vibrant
+- **Nommage des couleurs** : color-name-list + index pré-calculé
 - **Upload de fichiers** : multer
+- **Documentation** : Swagger UI (`/docs`)
 
 ## Installation
 
 ```bash
-git clone https://github.com/moreno-luc88/color-palette-api.git
+git clone https://github.com/MorenoLuc88/color-palette-api.git
 cd color-palette-api
 npm install
 ```
@@ -27,16 +29,20 @@ npm run dev
 # Build de production
 npm run build
 npm start
+
+# Régénérer l'index de nommage des couleurs (si besoin)
+npm run build:color-index
 ```
 
-Le serveur démarre sur `http://localhost:3000` par défaut. Modifiable via la variable d'environnement `PORT`.
+Le serveur démarre sur `http://localhost:3000` par défaut.  
+La documentation Swagger est disponible sur `http://localhost:3000/docs`.
 
 ### Variables d'environnement
 
-| Variable      | Défaut | Description                                      |
-|---------------|--------|--------------------------------------------------|
-| `PORT`        | `3000` | Port d'écoute du serveur                         |
-| `CORS_ORIGIN` | `*`    | Origine(s) autorisées pour les requêtes CORS     |
+| Variable      | Défaut | Description                                  |
+|---------------|--------|----------------------------------------------|
+| `PORT`        | `3000` | Port d'écoute du serveur                     |
+| `CORS_ORIGIN` | `*`    | Origine(s) autorisées pour les requêtes CORS |
 
 ---
 
@@ -50,7 +56,7 @@ Vérification de l'état du serveur.
 ```json
 {
   "status": "ok",
-  "timestamp": "2026-05-16T12:00:00.000Z"
+  "timestamp": "2026-05-17T10:00:00.000Z"
 }
 ```
 
@@ -58,7 +64,7 @@ Vérification de l'état du serveur.
 
 ### `POST /api/palette`
 
-Uploade une image et extrait sa palette de couleurs dominantes.
+Uploade une image et extrait sa palette de couleurs dominantes. Chaque couleur est accompagnée de son nom en anglais (ex. `"Sunflower"`, `"Cactus"`, `"Creamy Peach"`).
 
 **Requête**
 - Content-Type : `multipart/form-data`
@@ -75,31 +81,45 @@ curl -X POST http://localhost:3000/api/palette \
 ```json
 {
   "dominant": {
-    "hex": "#3a7bd5",
-    "rgb": { "r": 58, "g": 123, "b": 213 },
-    "hsl": { "h": 214, "s": 64, "l": 53 },
-    "population": 4821,
-    "name": "Vibrant"
+    "hex": "#575c30",
+    "rgb": { "r": 87, "g": 92, "b": 48 },
+    "hsl": { "h": 67, "s": 31, "l": 27 },
+    "population": 1874,
+    "name": "Cactus"
   },
   "swatches": [
     {
-      "hex": "#3a7bd5",
-      "rgb": { "r": 58, "g": 123, "b": 213 },
-      "hsl": { "h": 214, "s": 64, "l": 53 },
-      "population": 4821,
-      "name": "Vibrant"
+      "hex": "#575c30",
+      "rgb": { "r": 87, "g": 92, "b": 48 },
+      "hsl": { "h": 67, "s": 31, "l": 27 },
+      "population": 1874,
+      "name": "Cactus"
     },
     {
-      "hex": "#1a2a4a",
-      "rgb": { "r": 26, "g": 42, "b": 74 },
-      "hsl": { "h": 218, "s": 48, "l": 20 },
-      "population": 3102,
-      "name": "DarkVibrant"
+      "hex": "#d6ba1a",
+      "rgb": { "r": 214, "g": 186, "b": 26 },
+      "hsl": { "h": 51, "s": 78, "l": 47 },
+      "population": 1534,
+      "name": "Sunflower"
+    },
+    {
+      "hex": "#a56c4f",
+      "rgb": { "r": 165, "g": 108, "b": 79 },
+      "hsl": { "h": 20, "s": 35, "l": 48 },
+      "population": 824,
+      "name": "Pale Brown"
+    },
+    {
+      "hex": "#cec2b2",
+      "rgb": { "r": 206, "g": 194, "b": 178 },
+      "hsl": { "h": 34, "s": 22, "l": 75 },
+      "population": 662,
+      "name": "Grain"
     }
   ],
   "imageInfo": {
-    "width": 1920,
-    "height": 1080,
+    "width": 832,
+    "height": 970,
     "format": "jpeg"
   }
 }
@@ -112,42 +132,42 @@ curl -X POST http://localhost:3000/api/palette \
 Calcule les harmonies chromatiques à partir d'une couleur hexadécimale de base.
 
 **Paramètres**
-| Nom | Type   | Description                                   |
-|-----|--------|-----------------------------------------------|
+| Nom | Type   | Description                                         |
+|-----|--------|-----------------------------------------------------|
 | hex | string | Code couleur hexadécimal de 6 caractères (sans `#`) |
 
 **Exemple**
 ```bash
-curl http://localhost:3000/api/harmonies/3a7bd5
+curl http://localhost:3000/api/harmonies/575c30
 ```
 
 **Réponse**
 ```json
 {
   "base": {
-    "hex": "#3a7bd5",
-    "rgb": { "r": 58, "g": 123, "b": 213 },
-    "hsl": { "h": 214, "s": 64, "l": 53 }
+    "hex": "#575c30",
+    "rgb": { "r": 87, "g": 92, "b": 48 },
+    "hsl": { "h": 67, "s": 31, "l": 27 }
   },
   "complementary": [
-    { "hex": "#d5843a", "rgb": { "r": 213, "g": 132, "b": 58 }, "hsl": { "h": 34, "s": 64, "l": 53 } }
+    { "hex": "#30557c", "rgb": { "r": 48, "g": 85, "b": 124 }, "hsl": { "h": 247, "s": 31, "l": 27 } }
   ],
   "triadic": [
-    { "hex": "#d53a7b", "rgb": { "r": 213, "g": 58, "b": 123 }, "hsl": { "h": 334, "s": 64, "l": 53 } },
-    { "hex": "#7bd53a", "rgb": { "r": 123, "g": 213, "b": 58 }, "hsl": { "h": 94, "s": 64, "l": 53 } }
+    { "hex": "#30577c", "rgb": { "r": 48, "g": 55, "b": 124 }, "hsl": { "h": 307, "s": 31, "l": 27 } },
+    { "hex": "#7c5730", "rgb": { "r": 124, "g": 87, "b": 48 }, "hsl": { "h": 27, "s": 31, "l": 27 } }
   ],
   "analogous": [
-    { "hex": "#3aa5d5", "rgb": { "r": 58, "g": 165, "b": 213 }, "hsl": { "h": 184, "s": 64, "l": 53 } },
-    { "hex": "#3a51d5", "rgb": { "r": 58, "g": 81, "b": 213 }, "hsl": { "h": 244, "s": 64, "l": 53 } }
+    { "hex": "#30573e", "rgb": { "r": 48, "g": 87, "b": 62 }, "hsl": { "h": 37, "s": 31, "l": 27 } },
+    { "hex": "#4a5730", "rgb": { "r": 74, "g": 87, "b": 48 }, "hsl": { "h": 97, "s": 31, "l": 27 } }
   ],
   "splitComplementary": [
-    { "hex": "#d5a33a", "rgb": { "r": 213, "g": 163, "b": 58 }, "hsl": { "h": 4, "s": 64, "l": 53 } },
-    { "hex": "#d5623a", "rgb": { "r": 213, "g": 98, "b": 58 }, "hsl": { "h": 64, "s": 64, "l": 53 } }
+    { "hex": "#305c57", "rgb": { "r": 48, "g": 92, "b": 87 }, "hsl": { "h": 217, "s": 31, "l": 27 } },
+    { "hex": "#30455c", "rgb": { "r": 48, "g": 69, "b": 92 }, "hsl": { "h": 277, "s": 31, "l": 27 } }
   ],
   "tetradic": [
-    { "hex": "#7b3ad5", "rgb": { "r": 123, "g": 58, "b": 213 }, "hsl": { "h": 304, "s": 64, "l": 53 } },
-    { "hex": "#d5843a", "rgb": { "r": 213, "g": 132, "b": 58 }, "hsl": { "h": 34, "s": 64, "l": 53 } },
-    { "hex": "#84d53a", "rgb": { "r": 132, "g": 213, "b": 58 }, "hsl": { "h": 124, "s": 64, "l": 53 } }
+    { "hex": "#4a305c", "rgb": { "r": 74, "g": 48, "b": 92 }, "hsl": { "h": 337, "s": 31, "l": 27 } },
+    { "hex": "#30557c", "rgb": { "r": 48, "g": 85, "b": 124 }, "hsl": { "h": 247, "s": 31, "l": 27 } },
+    { "hex": "#5c4a30", "rgb": { "r": 92, "g": 74, "b": 48 }, "hsl": { "h": 157, "s": 31, "l": 27 } }
   ]
 }
 ```
@@ -158,13 +178,17 @@ curl http://localhost:3000/api/harmonies/3a7bd5
 
 ```
 src/
-├── routes/          # Définition des routes Express
-├── controllers/     # Gestionnaires de requêtes
-├── services/        # Logique d'extraction de couleurs (sharp + node-vibrant)
-├── middlewares/     # Configuration de l'upload Multer
-├── utils/           # Calculs couleur (conversions hex/rgb/hsl, algorithmes d'harmonie)
-└── types/           # Interfaces TypeScript
-uploads/             # Répertoire temporaire d'upload (nettoyé automatiquement après traitement)
+├── routes/           # Définition des routes Express
+├── controllers/      # Gestionnaires de requêtes
+├── services/         # Logique d'extraction de couleurs (sharp + node-vibrant)
+├── middlewares/      # Configuration de l'upload Multer
+├── utils/            # Calculs couleur (conversions hex/rgb/hsl, harmonies, nommage)
+├── types/            # Interfaces TypeScript
+├── swagger.ts        # Spécification OpenAPI
+└── color-index.json  # Index pré-calculé de 32 768 noms de couleurs (généré par scripts/buildColorIndex.js)
+scripts/
+└── buildColorIndex.js  # Génère src/color-index.json depuis color-name-list
+uploads/              # Répertoire temporaire d'upload (nettoyé automatiquement après traitement)
 ```
 
 ## Licence

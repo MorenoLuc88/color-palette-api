@@ -1,9 +1,11 @@
 import express from 'express';
 import cors from 'cors';
 import multer from 'multer';
+import swaggerUi from 'swagger-ui-express';
 import path from 'path';
 import fs from 'fs';
 import paletteRoutes from './routes/palette.routes';
+import { swaggerSpec } from './swagger';
 
 const app = express();
 const PORT = process.env.PORT ?? 3000;
@@ -19,6 +21,8 @@ app.use(express.json());
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/api', paletteRoutes);
 

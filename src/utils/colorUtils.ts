@@ -1,4 +1,20 @@
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 import { HarmonyColor, HarmonyResult } from '../types';
+
+const colorIndex: Record<string, string> = JSON.parse(
+  readFileSync(resolve(process.cwd(), 'src/color-index.json'), 'utf-8')
+);
+
+export function getColorName(hex: string): string {
+  const c = hex.replace('#', '').toLowerCase();
+  const snap = (v: string) => Math.min(248, Math.round(parseInt(v, 16) / 8) * 8);
+  const r = snap(c.slice(0, 2));
+  const g = snap(c.slice(2, 4));
+  const b = snap(c.slice(4, 6));
+  const key = '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('');
+  return colorIndex[key] ?? hex;
+}
 
 export function hexToRgb(hex: string): { r: number; g: number; b: number } {
   const clean = hex.replace('#', '');
@@ -80,6 +96,7 @@ export function hslToRgb(h: number, s: number, l: number): { r: number; g: numbe
     b: Math.round(hue2rgb(p, q, hn - 1 / 3) * 255),
   };
 }
+
 
 function buildHarmonyColor(h: number, s: number, l: number): HarmonyColor {
   const normalH = ((h % 360) + 360) % 360;
